@@ -21,8 +21,7 @@ bool Ty::IsSameType(Ty *expected) {
   if ((typeid(*a) == typeid(NilTy) && typeid(*b) == typeid(RecordTy)) ||
       (typeid(*a) == typeid(RecordTy) && typeid(*b) == typeid(NilTy)))
     return true;
-
-  return a == b;
+  return typeid(*a) == typeid(*b);
 }
 
 } // namespace type
