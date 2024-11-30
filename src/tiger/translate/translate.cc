@@ -68,6 +68,8 @@ void ProgTr::OutputIR(std::string_view filename) {
 void ProgTr::Translate() {
   FillBaseVEnv();
   FillBaseTEnv();
+  this->absyn_tree_->Translate(venv_.get(), tenv_.get(), main_level_.get(),
+                               errormsg_.get());
   /* TODO: Put your lab5-part1 code here */
 }
 
@@ -78,12 +80,14 @@ namespace absyn {
 tr::ValAndTy *AbsynTree::Translate(env::VEnvPtr venv, env::TEnvPtr tenv,
                                    tr::Level *level,
                                    err::ErrorMsg *errormsg) const {
+  return this->root_->Translate(venv, tenv, level, errormsg);
   /* TODO: Put your lab5-part1 code here */
 }
 
 void TypeDec::Translate(env::VEnvPtr venv, env::TEnvPtr tenv, tr::Level *level,
                         err::ErrorMsg *errormsg) const {
- /* TODO: Put your lab5-part1 code here */
+  this->types_
+  /* TODO: Put your lab5-part1 code here */
 }
 
 void FunctionDec::Translate(env::VEnvPtr venv, env::TEnvPtr tenv,
@@ -130,6 +134,7 @@ tr::ValAndTy *SubscriptVar::Translate(env::VEnvPtr venv, env::TEnvPtr tenv,
 tr::ValAndTy *VarExp::Translate(env::VEnvPtr venv, env::TEnvPtr tenv,
                                 tr::Level *level,
                                 err::ErrorMsg *errormsg) const {
+
   /* TODO: Put your lab5-part1 code here */
 }
 
@@ -148,6 +153,9 @@ tr::ValAndTy *IntExp::Translate(env::VEnvPtr venv, env::TEnvPtr tenv,
 tr::ValAndTy *StringExp::Translate(env::VEnvPtr venv, env::TEnvPtr tenv,
                                    tr::Level *level,
                                    err::ErrorMsg *errormsg) const {
+  llvm::Value *str_val =
+      type::StringTy::CreateGlobalStringStructPtr(this->str_);
+  return new tr::ValAndTy(str_val, type::StringTy::Instance());
   /* TODO: Put your lab5-part1 code here */
 }
 
@@ -160,6 +168,8 @@ tr::ValAndTy *CallExp::Translate(env::VEnvPtr venv, env::TEnvPtr tenv,
 tr::ValAndTy *OpExp::Translate(env::VEnvPtr venv, env::TEnvPtr tenv,
                                tr::Level *level,
                                err::ErrorMsg *errormsg) const {
+  if (this->oper_ == AND_OP || this->oper_ == OR_OP) {
+  }
   /* TODO: Put your lab5-part1 code here */
 }
 

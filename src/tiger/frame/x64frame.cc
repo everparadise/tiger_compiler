@@ -89,7 +89,6 @@ public:
   /* TODO: Put your lab5-part1 code here */
 };
 
-
 class X64Frame : public Frame {
 public:
   X64Frame(temp::Label *name, std::list<frame::Access *> *formals)
@@ -114,9 +113,18 @@ public:
   }
 };
 
+// shift of view
 frame::Frame *NewFrame(temp::Label *name, std::list<bool> formals) {
+  // std::list<frame::Access *> *args;
+  // args = new std::list<frame::Access *>();
+  // reg_manager->
+  // for(auto formal : formals) {
+
+  // }
+  // Frame *frame_ = new X64Frame(name, args);
+  // frame_->AllocOutgoSpace
+
   /* TODO: Put your lab5-part1 code here */
 }
-
 
 } // namespace frame

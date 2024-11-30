@@ -95,9 +95,7 @@ public:
   [[nodiscard]] virtual std::list<frame::Access *> *Formals() const = 0;
   virtual frame::Access *AllocLocal(bool escape) = 0;
   virtual void AllocOutgoSpace(int size) = 0;
-  int calculateActualFramesize() {
-    return (-offset_ + outgo_size_) + 8;
-  }
+  int calculateActualFramesize() { return (-offset_ + outgo_size_) + 8; }
 };
 
 /**
