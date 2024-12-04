@@ -72,7 +72,9 @@ protected:
 class Access {
 public:
   /* TODO: Put your lab5-part1 code here */
-
+  virtual llvm::Value *GetAccess() = 0;
+  virtual llvm::Value *GetAccess(llvm::Value *base_addr) = 0;
+  virtual void setValue(llvm::Value *value, llvm::Type *type) = 0;
   virtual ~Access() = default;
 };
 
