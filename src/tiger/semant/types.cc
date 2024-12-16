@@ -1,4 +1,5 @@
 #include "tiger/semant/types.h"
+#include <iostream>
 
 extern llvm::IRBuilder<> *ir_builder;
 extern llvm::Module *ir_module;
@@ -26,11 +27,11 @@ bool Ty::IsSameType(Ty *expected) {
   if ((typeid(*a) == typeid(NilTy) && typeid(*b) == typeid(RecordTy)) ||
       (typeid(*a) == typeid(RecordTy) && typeid(*b) == typeid(NilTy)))
     return true;
-
-  return a == b;
+  return typeid(*a) == typeid(*b);
 }
 
 llvm::Type *Ty::GetLLVMType() {
+  std::cout << "wrong get llvm type" << std::endl;
   assert(0);
   return NULL;
 }

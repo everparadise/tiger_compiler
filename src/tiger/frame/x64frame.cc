@@ -86,6 +86,31 @@ public:
   explicit InFrameAccess(int offset, frame::Frame *parent)
       : offset(offset), parent_frame(parent) {}
 
+  llvm::Value *GetAccess() override {
+    llvm::Value *fp = parent_frame->sp;
+    std::cout << "offset: " << offset << std::endl;
+    auto offset_val = ir_builder->getInt64(offset);
+    auto int_access = ir_builder->CreateAdd(fp, offset_val);
+    return int_access;
+    // to be checked
+  }
+
+  llvm::Value *GetAccess(llvm::Value *base_addr) override {
+    auto offset_val = ir_builder->getInt64(offset);
+    auto int_access = ir_builder->CreateAdd(base_addr, offset_val);
+    return int_access;
+  }
+
+  void setValue(llvm::Value *value, llvm::Type *type) override {
+    llvm::Value *fp = parent_frame->sp;
+    std::cout << "offset: " << offset << std::endl;
+    std::cout << "fp value: " << fp << std::endl;
+    auto offset_val = ir_builder->getInt64(offset);
+    auto int_access = ir_builder->CreateAdd(fp, offset_val);
+    auto val_ptr =
+        ir_builder->CreateIntToPtr(int_access, llvm::PointerType::get(type, 0));
+    ir_builder->CreateStore(value, val_ptr);
+  }
   /* TODO: Put your lab5-part1 code here */
 };
 
@@ -107,13 +132,36 @@ public:
 
     return access;
   }
+
   void AllocOutgoSpace(int size) override {
     if (size > outgo_size_)
       outgo_size_ = size;
   }
 };
 
+// shift of view
 frame::Frame *NewFrame(temp::Label *name, std::list<bool> formals) {
+
+  std::list<frame::Access *> *args;
+  args = new std::list<frame::Access *>();
+  X64Frame *new_frame = new X64Frame(name, args);
+  int arg_index = 0;
+  for (auto &&formal : formals) {
+    args->push_back(
+        new InFrameAccess(++arg_index * reg_manager->WordSize(), new_frame));
+  }
+  return new_frame;
+  //
+
+  // std::list<frame::Access *> *args;
+  // args = new std::list<frame::Access *>();
+  // reg_manager->
+  // for(auto formal : formals) {
+
+  // }
+  // Frame *frame_ = new X64Frame(name, args);
+  // frame_->AllocOutgoSpace
+
   /* TODO: Put your lab5-part1 code here */
 }
 

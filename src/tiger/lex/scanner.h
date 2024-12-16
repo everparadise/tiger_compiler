@@ -63,6 +63,7 @@ private:
   void postCode(PostEnum_ type);
   void adjust();
   void adjustStr();
+  void ifNewLine(int i);
 };
 
 inline int Scanner::lex() { return lex_(); }
@@ -78,10 +79,18 @@ inline void Scanner::postCode(PostEnum_ type) {
 inline void Scanner::print() { print_(); }
 
 inline void Scanner::adjust() {
+  //std::cout << matched() << ":" << char_pos_  << "+ " << length() << std::endl; 
   errormsg_->tok_pos_ = char_pos_;
   char_pos_ += length();
 }
 
-inline void Scanner::adjustStr() { char_pos_ += length(); }
+inline void Scanner::adjustStr() { 
+  //std::cout << matched() << ":" << char_pos_  << "+ " << length() << std::endl;
+  char_pos_ += length();
+}
+
+inline void Scanner::ifNewLine(int i = 0){
+    if(matched()[i] == '\n') errormsg_->Newline();
+}
 
 #endif // TIGER_LEX_SCANNER_H_

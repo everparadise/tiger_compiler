@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
   }
 
   fname = std::string_view(argv[1]);
-
+  std::cout << fname << std::endl;
   {
     std::unique_ptr<err::ErrorMsg> errormsg;
 
