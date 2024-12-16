@@ -45,7 +45,7 @@ public:
   std::string assem_;
   temp::Label *label_;
   LabelInstr(std::string assem)
-      : assem_(std::move(assem)), label_(temp::LabelFactory::NamedLabel(assem)) {}
+      : assem_(assem), label_(temp::LabelFactory::NamedLabel(assem)) {}
 
   void Print(FILE *out, temp::Map *m) const override;
   [[nodiscard]] temp::TempList *Def() const override;
