@@ -113,7 +113,10 @@ void ProgTr::Translate() {
   ir_builder->SetInsertPoint(block);
 
   llvm::Function::arg_iterator real_arg_it = func->arg_begin();
-  main_level_->set_sp(real_arg_it);
+  llvm::Value *function_sp = ir_builder->CreateAdd(
+      real_arg_it, llvm::ConstantInt::get(ir_builder->getInt64Ty(), 0),
+      "tigermain_sp");
+  main_level_->set_sp(function_sp);
   main_level_->frame_->framesize_global = global_frame_size;
 
   auto main_res = this->absyn_tree_->Translate(
@@ -231,7 +234,11 @@ void FunctionDec::Translate(env::VEnvPtr venv, env::TEnvPtr tenv,
     llvm::Function::arg_iterator real_arg_it = fun_entry->func_->arg_begin();
 
     // real_arg1: sp
-    fun_entry->level_->set_sp(real_arg_it++);
+    llvm::Value *function_sp = ir_builder->CreateAdd(
+        real_arg_it, llvm::ConstantInt::get(ir_builder->getInt64Ty(), 0),
+        func->name_->Name() + "_sp");
+    fun_entry->level_->set_sp(function_sp);
+    real_arg_it++;
     std::cout << "set sp" << std::endl;
     // real_arg2: sl
     (*fun_entry->level_->frame_->formals_->begin())
@@ -266,7 +273,7 @@ void FunctionDec::Translate(env::VEnvPtr venv, env::TEnvPtr tenv,
     } else
       ir_builder->CreateRetVoid();
     auto real_size = fun_entry->level_->frame_->calculateActualFramesize();
-    ;
+
     // needs 16 align?
     // set back to global frame size
     global_frame_size->setInitializer(llvm::ConstantInt::get(
@@ -482,21 +489,15 @@ tr::ValAndTy *CallExp::Translate(env::VEnvPtr venv, env::TEnvPtr tenv,
     std::cout << "allocOutgoSpace: " << (args_num + 1) * reg_manager->WordSize()
               << std::endl;
     level->frame_->AllocOutgoSpace((args_num + 1) * reg_manager->WordSize());
-    auto global_framesize_val = ir_builder->CreateLoad(
-        ir_builder->getInt64Ty(), level->frame_->framesize_global);
-
-    auto new_sp = ir_builder->CreateSub(level->get_sp(), global_framesize_val);
-
-    real_args.emplace_back(new_sp);
 
     int callee_level = fun_entry->level_->number;
     int curr_level = level->number;
     if (callee_level <= curr_level) {
       auto trace_level = level;
-      llvm::Value *trace_sl_int;
+      llvm::Value *trace_sl_int = level->get_sp();
       while (curr_level != callee_level + 1) {
         auto sl_formal = trace_level->frame_->Formals()->begin();
-        llvm::Value *sl_int = (*sl_formal)->GetAccess(trace_level->get_sp());
+        llvm::Value *sl_int = (*sl_formal)->GetAccess(trace_sl_int);
         llvm::Value *sl_ptr = ir_builder->CreateIntToPtr(
             sl_int, llvm::Type::getInt64PtrTy(ir_builder->getContext()));
         trace_sl_int = ir_builder->CreateLoad(ir_builder->getInt64Ty(), sl_ptr);
@@ -506,10 +507,22 @@ tr::ValAndTy *CallExp::Translate(env::VEnvPtr venv, env::TEnvPtr tenv,
       real_args.emplace_back(trace_sl_int);
     } else {
       assert(callee_level == curr_level + 1);
-      real_args.emplace_back(level->get_sp());
+      // real_args.emplace_back(level->get_sp());
+      // modify in lab5-part2, because of the shit code design
+      auto sl_value = ir_builder->CreateAdd(
+          level->get_sp(), llvm::ConstantInt::get(ir_builder->getInt64Ty(), 0));
+      real_args.emplace_back(sl_value);
     }
 
     real_args.insert(real_args.end(), formal_args.begin(), formal_args.end());
+
+    // auto global_framesize_val = ir_builder->CreateLoad(
+    //     ir_builder->getInt64Ty(), level->frame_->framesize_global);
+    auto global_framesize_val = ir_builder->CreateLoad(
+        ir_builder->getInt64Ty(), level->frame_->framesize_global);
+    auto new_sp = ir_builder->CreateSub(level->get_sp(), global_framesize_val);
+
+    real_args.insert(real_args.begin(), new_sp);
   }
 
   auto callInst = ir_builder->CreateCall(fun_entry->func_, real_args);
