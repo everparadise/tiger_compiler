@@ -68,6 +68,8 @@ void ProgTr::Translate() {
   FillBaseVEnv();
   FillBaseTEnv();
 
+  frame_info.push_back(std::make_pair("tigermain", main_level_->frame_));
+
   // declare i64 @init_array(i32, i64)
   llvm::FunctionType *init_array_type = llvm::FunctionType::get(
       ir_builder->getInt64Ty(),
@@ -105,7 +107,7 @@ void ProgTr::Translate() {
       llvm::GlobalValue::InternalLinkage,
       llvm::ConstantInt::get(llvm::Type::getInt64Ty(ir_builder->getContext()),
                              0),
-      "tigermain_frame_size");
+      "tigermain_framesize_global");
   ir_module->getGlobalList().push_back(global_frame_size);
   func_stack.push(func);
   auto block =
@@ -179,6 +181,7 @@ void FunctionDec::Translate(env::VEnvPtr venv, env::TEnvPtr tenv,
 
     auto frame = frame::NewFrame(
         label, std::list<bool>(func->params_->GetList().size() + 1, true));
+    frame_info.push_back({func->name_->Name(), frame});
     tr::Level *new_level = new tr::Level(frame, level, level->number + 1);
 
     // Create new Function Entry and Enter to venv
@@ -212,7 +215,7 @@ void FunctionDec::Translate(env::VEnvPtr venv, env::TEnvPtr tenv,
         llvm::GlobalValue::InternalLinkage,
         llvm::ConstantInt::get(llvm::Type::getInt64Ty(ir_builder->getContext()),
                                0),
-        func->name_->Name() + "_frame_size");
+        func->name_->Name() + "_framesize_global");
 
     ir_module->getGlobalList().push_back(global_frame_size);
 
@@ -761,7 +764,8 @@ tr::ValAndTy *IfExp::Translate(env::VEnvPtr venv, env::TEnvPtr tenv,
   ir_builder->SetInsertPoint(then_block);
   auto then_res = this->then_->Translate(venv, tenv, level, errormsg);
   auto then_last_block = ir_builder->GetInsertBlock();
-  ir_builder->CreateBr(next_block);
+  if (!CheckBBTerminatorIsBranch(then_last_block))
+    ir_builder->CreateBr(next_block);
 
   // when no elsee
   if (!this->elsee_) {
@@ -775,7 +779,8 @@ tr::ValAndTy *IfExp::Translate(env::VEnvPtr venv, env::TEnvPtr tenv,
   ir_builder->SetInsertPoint(else_block);
   auto else_res = this->elsee_->Translate(venv, tenv, level, errormsg);
   auto else_last_block = ir_builder->GetInsertBlock();
-  ir_builder->CreateBr(next_block);
+  if (!CheckBBTerminatorIsBranch(else_last_block))
+    ir_builder->CreateBr(next_block);
 
   ir_builder->SetInsertPoint(next_block);
   if (then_res->val_ && else_res->val_) {

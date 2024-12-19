@@ -175,6 +175,22 @@ frame::Frame *NewFrame(temp::Label *name, std::list<bool> formals) {
 assem::InstrList *ProcEntryExit1(std::string_view function_name,
                                  assem::InstrList *body) {
   // TODO: your lab5 code here
+  auto callee_saves = reg_manager->CalleeSaves();
+  auto &instr_list = body->GetList();
+  body->Append(
+      new assem::LabelInstr(function_name.data() + std::string("_exit")));
+  for (auto reg : callee_saves->GetList()) {
+    auto temp = temp::TempFactory::NewTemp();
+    // instr_list.insert(instr_list.begin(),
+    //                   new assem::MoveInstr("movq `s0, `d0",
+    //                                        new temp::TempList(temp),
+    //                                        new temp::TempList(reg)));
+    body->Insert(instr_list.begin(),
+                 new assem::MoveInstr("movq `s0, `d0", new temp::TempList(temp),
+                                      new temp::TempList(reg)));
+    body->Append(new assem::MoveInstr("movq `s0, `d0", new temp::TempList(reg),
+                                      new temp::TempList(temp)));
+  }
   return body;
 }
 
@@ -201,6 +217,13 @@ assem::Proc *ProcEntryExit3(std::string_view function_name,
   std::string prologue = "";
   std::string epilogue = "";
 
+  prologue += function_name.data();
+  prologue += ":\n";
+
+  // body->Append(
+  //     new assem::LabelInstr(function_name.data() + std::string("_exit")));
+  body->Append(new assem::OperInstr("retq", new temp::TempList(),
+                                    new temp::TempList(), nullptr));
   // TODO: your lab5 code here
   return new assem::Proc(prologue, body, epilogue);
 }
