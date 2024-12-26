@@ -30,12 +30,14 @@ class Level {
 public:
   frame::Frame *frame_;
   Level *parent_;
+  int number;
   // llvm::Value *sp;
 
-  Level(frame::Frame *frame, Level *parent) : frame_(frame), parent_(parent) {}
+  Level(frame::Frame *frame, Level *parent, int curr_num = 0)
+      : frame_(frame), parent_(parent), number(curr_num) {}
 
   llvm::Value *get_sp() { return frame_->sp; }
-  
+
   void set_sp(llvm::Value *sp) { frame_->sp = sp; }
 
   /* TODO: Put your lab5-part1 code here */
@@ -48,7 +50,7 @@ public:
       : absyn_tree_(std::move(absyn_tree)), errormsg_(std::move(errormsg)),
         main_level_(std::make_unique<Level>(
             frame::NewFrame(temp::LabelFactory::NamedLabel("tigermain"),
-                            std::list<bool>()),
+                            std::list<bool>(true)),
             nullptr)),
         tenv_(std::make_unique<env::TEnv>()),
         venv_(std::make_unique<env::VEnv>()) {}

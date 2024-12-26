@@ -45,6 +45,11 @@ public:
   // check if the value is %sp in llvm
   bool IsRsp(llvm::Value *val, std::string_view function_name) const {
     // TODO: your lab5 code here
+    std::string value_name = val->getName().str();
+    if (value_name.size() < 3)
+      return false;
+    if (std::string(function_name) + +"_sp" == value_name)
+      return true;
     return false;
   }
 
@@ -66,6 +71,9 @@ private:
   temp::Temp *phi_temp_;
   std::unique_ptr<canon::Traces> traces_;
   std::unique_ptr<AssemInstr> assem_instr_;
+
+  void PhiInstrct(assem::InstrList *instr_list, llvm::Instruction &inst,
+                  std::string_view function_name, llvm::BasicBlock *bb);
 };
 
 } // namespace cg
