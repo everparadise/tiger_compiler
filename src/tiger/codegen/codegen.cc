@@ -482,7 +482,7 @@ void CodeGen::InstrSel(assem::InstrList *instr_list, llvm::Instruction &inst,
               {reg_manager->GetRegister(frame::X64RegManager::Reg::RAX),
                reg_manager->GetRegister(frame::X64RegManager::Reg::RDX)}),
           new temp::TempList(
-              reg_manager->GetRegister(frame::X64RegManager::Reg::RAX)),
+              {reg_manager->GetRegister(frame::X64RegManager::Reg::RAX)}),
           nullptr));
       if (llvm::ConstantInt *rhs_const =
               llvm::dyn_cast<llvm::ConstantInt>(sdiv_inst->getOperand(1))) {
@@ -496,9 +496,9 @@ void CodeGen::InstrSel(assem::InstrList *instr_list, llvm::Instruction &inst,
                 {reg_manager->GetRegister(frame::X64RegManager::Reg::RAX),
                  reg_manager->GetRegister(frame::X64RegManager::Reg::RDX)}),
             new temp::TempList(
-                {reg_manager->GetRegister(frame::X64RegManager::Reg::RAX),
-                 reg_manager->GetRegister(frame::X64RegManager::Reg::RDX),
-                 tmpTemp}),
+                {tmpTemp,
+                 reg_manager->GetRegister(frame::X64RegManager::Reg::RAX),
+                 reg_manager->GetRegister(frame::X64RegManager::Reg::RDX)}),
             nullptr));
       } else {
         instr_list->Append(new assem::OperInstr(
@@ -560,24 +560,32 @@ void CodeGen::InstrSel(assem::InstrList *instr_list, llvm::Instruction &inst,
       }
     }
 
+    instr_list->Append(new assem::OperInstr(
+        "movq $0,`d0", new temp::TempList(dst), new temp::TempList(), nullptr));
     if (icmp_inst->getPredicate() == llvm::ICmpInst::ICMP_EQ) {
-      instr_list->Append(new assem::OperInstr(
-          "sete `d0", new temp::TempList(dst), new temp::TempList(), nullptr));
+      instr_list->Append(
+          new assem::OperInstr("sete `d0", new temp::TempList(dst),
+                               new temp::TempList(dst), nullptr));
     } else if (icmp_inst->getPredicate() == llvm::ICmpInst::ICMP_NE) {
-      instr_list->Append(new assem::OperInstr(
-          "setne `d0", new temp::TempList(dst), new temp::TempList(), nullptr));
+      instr_list->Append(
+          new assem::OperInstr("setne `d0", new temp::TempList(dst),
+                               new temp::TempList(dst), nullptr));
     } else if (icmp_inst->getPredicate() == llvm::ICmpInst::ICMP_SGT) {
-      instr_list->Append(new assem::OperInstr(
-          "setg `d0", new temp::TempList(dst), new temp::TempList(), nullptr));
+      instr_list->Append(
+          new assem::OperInstr("setg `d0", new temp::TempList(dst),
+                               new temp::TempList(dst), nullptr));
     } else if (icmp_inst->getPredicate() == llvm::ICmpInst::ICMP_SGE) {
-      instr_list->Append(new assem::OperInstr(
-          "setge `d0", new temp::TempList(dst), new temp::TempList(), nullptr));
+      instr_list->Append(
+          new assem::OperInstr("setge `d0", new temp::TempList(dst),
+                               new temp::TempList(dst), nullptr));
     } else if (icmp_inst->getPredicate() == llvm::ICmpInst::ICMP_SLT) {
-      instr_list->Append(new assem::OperInstr(
-          "setl `d0", new temp::TempList(dst), new temp::TempList(), nullptr));
+      instr_list->Append(
+          new assem::OperInstr("setl `d0", new temp::TempList(dst),
+                               new temp::TempList(dst), nullptr));
     } else if (icmp_inst->getPredicate() == llvm::ICmpInst::ICMP_SLE) {
-      instr_list->Append(new assem::OperInstr(
-          "setle `d0", new temp::TempList(dst), new temp::TempList(), nullptr));
+      instr_list->Append(
+          new assem::OperInstr("setle `d0", new temp::TempList(dst),
+                               new temp::TempList(dst), nullptr));
     } else {
       throw std::runtime_error(std::string("Unknown icmp predicate: ") +
                                std::to_string(icmp_inst->getPredicate()));
