@@ -6,6 +6,8 @@
 #include "tiger/frame/x64frame.h"
 #include "tiger/liveness/flowgraph.h"
 #include "tiger/util/graph.h"
+#include <queue>
+#include <stack>
 
 namespace live {
 
@@ -64,6 +66,7 @@ private:
   std::unique_ptr<graph::Table<assem::Instr, temp::TempList>> out_;
   tab::Table<temp::Temp, INode> *temp_node_map_;
 
+  void BuildLiveGraph();
   void LiveMap();
   void InterfGraph();
 };
