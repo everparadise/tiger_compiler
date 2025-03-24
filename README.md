@@ -8,11 +8,7 @@
   - [Difference Between C Labs and C++ Labs](#difference-between-c-labs-and-c-labs)
   - [Installing Dependencies](#installing-dependencies)
   - [Compiling and Debugging](#compiling-and-debugging)
-  - [Testing Your Labs](#testing-your-labs)
-  - [Submitting Your Labs](#submitting-your-labs)
-  - [Formatting Your Codes](#formatting-your-codes)
   - [Other Commands](#other-commands)
-  - [Contributing to Tiger Compiler](#contributing-to-tiger-compiler)
   - [External Documentations](#external-documentations)
 
 ## Overview
@@ -70,49 +66,9 @@ gdb test_xxx # e.g. `gdb test_slp`
 **Note: we will use `-DCMAKE_BUILD_TYPE=Release` to grade your labs, so make
 sure your lab passed the released version**
 
-## Testing Your Labs
-
-Use `make`
-```bash
-make gradelabx
-```
-
-
-You can test all the labs by
-```bash
-make gradeall
-```
-
-## Submitting Your Labs
-
-
-Push your code to your GitLab repo
-```bash
-git add somefiles
-git commit -m "A message"
-git push
-```
-
-**Note, each experiment has a separate branch, such as `lab1`. When you finish the `lab1`, you must submit the code to the `lab1` branch. Otherwise, you won't get a full score in your lab.**
-
-## Formatting Your Codes
-
-We provide an LLVM-style .clang-format file in the project directory. You can use it to format your code.
-
-Use `clang-format` command
-```
-find . \( -name "*.h" -o -iname "*.cc" \) | xargs clang-format -i -style=file  # or make format
-```
-
-or config the clang-format file in your IDE and use the built-in format feature in it.
-
 ## Other Commands
 
 Utility commands can be found in the `Makefile`. They can be directly run by `make xxx` in a Unix shell. Windows users cannot use the `make` command, but the contents of `Makefile` can still be used as a reference for the available commands.
-
-## Contributing to Tiger Compiler
-
-You can post questions, issues, feedback, or even MR proposals through [our main GitLab repository](https://ipads.se.sjtu.edu.cn:2020/compilers-2021/compilers-2021/issues). We are rapidly refactoring the original C tiger compiler implementation into modern C++ style, so any suggestion to make this lab better is welcomed.
 
 ## External Documentations
 
